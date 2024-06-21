@@ -103,14 +103,13 @@ const translateText = async() => {
     xhr.withCredentials = true;
     xhr.addEventListener('readystatechange', function () {
       if (this.readyState === this.DONE) {
-        console.log(JSON.parse(this.responseText).data.translations.translatedText)
         setTranslatedData(JSON.parse(this.responseText).data.translations.translatedText)
         setOriginalData(data.text)
       }
     });
 
     xhr.open('POST', 'https://deep-translate1.p.rapidapi.com/language/translate/v2');
-    xhr.setRequestHeader('x-rapidapi-key', import.meta.env.TRANSLATE_API_KEY);
+    xhr.setRequestHeader('x-rapidapi-key', import.meta.env.VITE_TRANSLATE_API_KEY);
     xhr.setRequestHeader('x-rapidapi-host', 'deep-translate1.p.rapidapi.com');
     xhr.setRequestHeader('Content-Type', 'application/json');
     
