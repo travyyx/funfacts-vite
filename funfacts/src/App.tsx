@@ -163,7 +163,7 @@ function increaseCounter() {
   const xhr = new XMLHttpRequest();
   xhr.addEventListener('readystatechange', function () {
     if (this.readyState === this.DONE) {
-      setCount(this.responseText)
+      setCount(JSON.parse(this.responseText).facts)
     }
   });
 
@@ -176,8 +176,7 @@ useEffect(() => {
   const xhr = new XMLHttpRequest();
   xhr.addEventListener('readystatechange', function () {
     if (this.readyState === this.DONE) {
-     console.log(this.responseText)
-     setCount(this.responseText)
+     setCount(JSON.parse(this.responseText).facts)
     }
   });
 
