@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -11,7 +12,7 @@ import { Large, H1, H4, P, Lead } from '@/components/ui/Typography'
 import Github from '@/assets/github.svg'
 import Reddit from '@/assets/reddit.svg'
 import Twitter from '@/assets/twitter.svg'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Copy, Languages } from "lucide-react"
 import {
   Select,
@@ -63,6 +64,7 @@ function App() {
   const [selected, setSelected] = useState<string | null>()
   const [translatedData, setTranslatedData] = useState<string | null>(null)
   const [originalData, setOriginalData] = useState("")
+  const [count, setCount] = useState<string | number>(0)
 
   const fetchFact = async() => {
     try {
@@ -161,7 +163,7 @@ function increaseCounter() {
   const xhr = new XMLHttpRequest();
   xhr.addEventListener('readystatechange', function () {
     if (this.readyState === this.DONE) {
-      console.log(this.responseText)
+      setCount(parseInt(this.responseText))
     }
   });
 
@@ -169,6 +171,20 @@ function increaseCounter() {
   
   xhr.send();
 }
+
+useEffect(() => {
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener('readystatechange', function () {
+    if (this.readyState === this.DONE) {
+     console.log(this.responseText)
+     setCount(parseInt(this.responseText))
+    }
+  });
+
+  xhr.open('GET', 'http://localhost:3000/counter');
+  
+  xhr.send();
+}, [count])
 
 
   return (
@@ -183,6 +199,9 @@ function increaseCounter() {
   <CardContent className="w-full flex items-center justify-center">
     <Button className="text-lg" onClick={fetchFact}>Generate.</Button>
   </CardContent>
+  <CardFooter className="w-full text-center">
+    <Lead className="w-full text-center">{count && count.toString()} Facts generated and counting.</Lead>
+  </CardFooter>
 </Card>
 ) : (
   <Card className="w-96">
@@ -275,7 +294,7 @@ function increaseCounter() {
     </a>
     </Button>
   </div>
-    <Large className="w-full text-center text-muted mt-4 italic">Made with love by Ayomide.</Large>
+    <Large className="w-full text-center text-primary mt-4">Made with love by Ayomide.</Large>
   </main>
   )
 }
