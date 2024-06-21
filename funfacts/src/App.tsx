@@ -53,22 +53,27 @@ const fr = { language: "fr", name: "French" }
 
 const langs: Language[] = [de, es, fr]
 
+
 function App() {
   const { toast } = useToast()
   const [data, setData] = useState<Data | null >(null)
   const [loading, setLoading] = useState(false)
   const [languages] = useState<Array<Language>>(langs)
   const [translatable, setTranslatable] = useState(false)
+  const [selected, setSelected] = useState<string | null>()
+  const [translatedData, setTranslatedData] = useState<string | null>(null)
+  const [originalData, setOriginalData] = useState("")
 
   const fetchFact = async() => {
     try {
+      setSelected(null)
+      setTranslatedData(null)
       setLoading(true)
+      setTranslatable(false)
       setData({text: ""})
       const response = await fetch('https://uselessfacts.jsph.pl/random.json?language=en')
       const data = await response.json() as ResponseData
       setData(data)
-      console.log(data.text)
-      translateText()
       setLoading(false)
 
   } catch (error) {
@@ -86,18 +91,19 @@ function App() {
 const translateText = async() => {
 
   try {
-    const data = JSON.stringify({
-      q: 'Hello World!',
+    setLoading(true)
+    const body = JSON.stringify({
+      q: data && data.text,
       source: 'en',
-      target: 'es',
+      target: selected,
     });
     
     const xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
     xhr.addEventListener('readystatechange', function () {
       if (this.readyState === this.DONE) {
-        console.log(this.responseText);
-        console.log(languages[0].language)
+        console.log(JSON.parse(this.responseText).data.translations.translatedText)
+        setTranslatedData(JSON.parse(this.responseText).data.translations.translatedText)
       }
     });
 
@@ -106,10 +112,17 @@ const translateText = async() => {
     xhr.setRequestHeader('x-rapidapi-host', 'deep-translate1.p.rapidapi.com');
     xhr.setRequestHeader('Content-Type', 'application/json');
     
-    xhr.send(data);
+    xhr.send(body);
 
 } catch (error) {
-  console.error(error)
+  toast({
+    title: 'Error',
+    description: 'Failed to translate fact',
+    variant: 'destructive',
+    })
+  setLoading(false)
+} finally {
+  setLoading(false)
 }
 }
 
@@ -135,7 +148,11 @@ const translateText = async() => {
   <CardTitle className="w-full text-center">Fun Fact</CardTitle>
   </CardHeader>
   <CardContent className="w-full flex items-center justify-center flex-col gap-4">
-    <P className="w-full text-center">{data.text}</P>
+    { !translatedData ? (
+      <P className="w-full text-center">{data.text}</P>
+    ) : (
+      <P className="w-full text-center">{translatedData}</P>
+    )}
     <div className="flex w-full items-center justify-center gap-5">
     <TooltipProvider>
   <Tooltip>
@@ -175,23 +192,23 @@ const translateText = async() => {
   )}
 </Card>
 )}
-{translatable && (
+{translatable && data && (
 <div className="w-96">
 <Lead className="text-primary mb-2">Language</Lead>
   <div className="flex w-full gap-2 items-center">
-  <Select>
+  <Select onValueChange={(value) => setSelected(value)}>
     <SelectTrigger className="text-primary">
       <SelectValue placeholder="Select a language." className="text-primary"/>
     </SelectTrigger>
     <SelectContent className="dark">
     { languages && languages.map((language) => {
         return (
-          <SelectItem value={language.language} className="dark text-primary">{language.name}</SelectItem>
+          <SelectItem key={language.name} value={language.language} className="dark text-primary">{language.name}</SelectItem>
         )
     })}
     </SelectContent>
   </Select>
-  <Button>Translate</Button>
+  <Button onClick={translateText} disabled={!selected}>Translate</Button>
   </div>
 </div>
 )}
