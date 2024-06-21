@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -28,7 +29,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-
+import { getDatabase, ref, onValue, update } from "firebase/database";
+import { app } from "@/lib/firebase";
 interface Data {
   text: string
 }
@@ -64,7 +66,7 @@ function App() {
   const [selected, setSelected] = useState<string | null>()
   const [translatedData, setTranslatedData] = useState<string | null>(null)
   const [originalData, setOriginalData] = useState("")
-  const [count, setCount] = useState("0")
+  const [count, setCount] = useState(0)
 
   const fetchFact = async() => {
     try {
@@ -81,6 +83,7 @@ function App() {
       increaseCounter()
   } catch (error) {
     setData({text: ""})
+    console.log(error)
     toast({
       title: 'Error',
       description: 'Failed to fetch fact',
@@ -118,6 +121,7 @@ const translateText = async() => {
     xhr.send(body);
 
 } catch (error) {
+  console.log(error)
   toast({
     title: 'Error',
     description: 'Failed to translate fact',
@@ -134,7 +138,15 @@ function backToOriginal() {
   setData({text: originalData})
   setOriginalData("")
 }
+useEffect(() => {
+  const db = getDatabase(app);
+const starCountRef = ref(db, 'facts');
+onValue(starCountRef, (snapshot) => {
+  const data = snapshot.val();
+  setCount(data.count)
+});
 
+}, [])
 function copyText() {
   try {
     if (translatedData) {
@@ -160,30 +172,25 @@ function copyText() {
 }
 
 function increaseCounter() {
-  const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
-    if (this.readyState === this.DONE) {
-      setCount(JSON.parse(this.responseText).facts)
-    }
-  });
+  const db = getDatabase(app);
+  update(ref(db, "facts"), {
+    count: count + 1
+  })
 
-  xhr.open('GET', 'https://funfacts-backend.vercel.app/increment');
-  
-  xhr.send();
 }
 
-useEffect(() => {
-  const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
-    if (this.readyState === this.DONE) {
-     setCount(JSON.parse(this.responseText).facts)
-    }
-  });
+function formatNumber(count: number) {
+  if (count < 1000) {
+    return count.toString();
+  } else if (count < 1000000) {
+    return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  } else if (count < 1000000000) {
+    return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  } else {
+    return (count / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+  }
+}
 
-  xhr.open('GET', 'https://funfacts-backend.vercel.app/count');
-  
-  xhr.send();
-}, [count])
 
 
   return (
@@ -199,7 +206,7 @@ useEffect(() => {
     <Button className="text-lg" onClick={fetchFact}>Generate.</Button>
   </CardContent>
   <CardFooter className="w-full text-center">
-    <Lead className="w-full text-center">{count && count} Facts generated and counting.</Lead>
+    <Lead className="w-full text-center">{formatNumber(count)} Facts generated and counting.</Lead>
   </CardFooter>
 </Card>
 ) : (

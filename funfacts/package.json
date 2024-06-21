@@ -19,6 +19,7 @@
     "axios": "^0.24.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "firebase": "^10.12.2",
     "google-translate-api": "^2.3.0",
     "google-translate-api-x": "^10.6.8",
     "lucide-react": "^0.395.0",
