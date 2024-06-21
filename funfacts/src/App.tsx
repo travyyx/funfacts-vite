@@ -76,7 +76,7 @@ function App() {
       const data = await response.json() as ResponseData
       setData(data)
       setLoading(false)
-
+      increaseCounter()
   } catch (error) {
     setData(null)
     toast({
@@ -155,6 +155,20 @@ function copyText() {
       variant: 'destructive',
       })
   }
+}
+
+function increaseCounter() {
+  const xhr = new XMLHttpRequest();
+  xhr.withCredentials = true;
+  xhr.addEventListener('readystatechange', function () {
+    if (this.readyState === this.DONE) {
+      console.log(this.responseText)
+    }
+  });
+
+  xhr.open('GET', 'http://localhost:3000/');
+  
+  xhr.send();
 }
 
 
@@ -247,17 +261,17 @@ function copyText() {
   <H4 className="text-primary mt-5">Useful links</H4>
   <div className="flex items-center gap-12">
     <Button variant="outline" size="icon">
-    <a href="https://www.google.com" target="_blank">
+    <a href="https://github.com/travyyx" target="_blank">
     <img src={Github} alt="" />
     </a>
     </Button>
     <Button variant="outline" size="icon">
-    <a href="https://www.google.com" target="_blank">
+    <a href="https://x.com/blob_travis" target="_blank">
     <img src={Twitter} alt="" />
     </a>
     </Button>
     <Button variant="outline" size="icon">
-    <a href="https://www.google.com" target="_blank">
+    <a href="https://www.reddit.com/user/YoungTrav1s/" target="_blank">
     <img src={Reddit} alt="" />
     </a>
     </Button>
