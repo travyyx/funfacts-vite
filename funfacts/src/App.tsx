@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/tooltip"
 
 interface Data {
-  text: string | null
+  text: string
 }
 
 interface ResponseData {
@@ -57,14 +57,14 @@ const langs: Language[] = [de, es, fr]
 
 function App() {
   const { toast } = useToast()
-  const [data, setData] = useState<Data | null >(null)
+  const [data, setData] = useState<Data>({text: ""})
   const [loading, setLoading] = useState(false)
   const [languages] = useState<Array<Language>>(langs)
   const [translatable, setTranslatable] = useState(false)
   const [selected, setSelected] = useState<string | null>()
   const [translatedData, setTranslatedData] = useState<string | null>(null)
   const [originalData, setOriginalData] = useState("")
-  const [count, setCount] = useState<string | number>(0)
+  const [count, setCount] = useState("0")
 
   const fetchFact = async() => {
     try {
@@ -80,7 +80,7 @@ function App() {
       setLoading(false)
       increaseCounter()
   } catch (error) {
-    setData(null)
+    setData({text: ""})
     toast({
       title: 'Error',
       description: 'Failed to fetch fact',
@@ -96,7 +96,7 @@ const translateText = async() => {
   try {
     setLoading(true)
     const body = JSON.stringify({
-      q: data && data.text,
+      q: data.text,
       source: 'en',
       target: selected,
     });
@@ -163,7 +163,7 @@ function increaseCounter() {
   const xhr = new XMLHttpRequest();
   xhr.addEventListener('readystatechange', function () {
     if (this.readyState === this.DONE) {
-      setCount(parseInt(this.responseText))
+      setCount(this.responseText)
     }
   });
 
@@ -177,7 +177,7 @@ useEffect(() => {
   xhr.addEventListener('readystatechange', function () {
     if (this.readyState === this.DONE) {
      console.log(this.responseText)
-     setCount(parseInt(this.responseText))
+     setCount(this.responseText)
     }
   });
 
@@ -191,7 +191,7 @@ useEffect(() => {
     <main className="bg-background dark w-screen h-screen flex flex-col items-center justify-center gap-3">
       <H1 className="text-primary">Fun Facts Generator.</H1>
       <Toaster />
-      { !data ? (
+      { data.text === "" ? (
         <Card>
   <CardHeader>
     <CardTitle>Generate Fun Facts in one Click.</CardTitle>
@@ -200,7 +200,7 @@ useEffect(() => {
     <Button className="text-lg" onClick={fetchFact}>Generate.</Button>
   </CardContent>
   <CardFooter className="w-full text-center">
-    <Lead className="w-full text-center">{count && count.toString()} Facts generated and counting.</Lead>
+    <Lead className="w-full text-center">{count && count} Facts generated and counting.</Lead>
   </CardFooter>
 </Card>
 ) : (
@@ -227,7 +227,7 @@ useEffect(() => {
     </TooltipContent>
   </Tooltip>
 </TooltipProvider>
-    <Button className="text-lg" onClick={() => setData(null)}>Re-Generate.</Button>
+    <Button className="text-lg" onClick={() => setData({text: ""})}>Re-Generate.</Button>
     <TooltipProvider>
   <Tooltip>
     <TooltipTrigger asChild>
