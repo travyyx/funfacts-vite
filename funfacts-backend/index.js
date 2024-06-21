@@ -1,9 +1,11 @@
 const fs = require('node:fs/promises');
 var cors = require('cors')
+import path from 'path';
 
 async function getCounter() {
   try {
-    const data = await fs.readFile('public/counter.txt', { encoding: 'utf8' });
+    let filepath = path.join(process.cwd(), 'public/counter.txt');
+    const data = await fs.readFile(filepath, { encoding: 'utf8' });
     return data
   } catch (err) {
     return err
@@ -43,7 +45,8 @@ function increaseCounter() {
   getCounter().then(
     (data) => {
       content = parseInt(data) + 1;
-      fs.writeFile('counter.txt', content.toString())
+      let filepath = path.join(process.cwd(), 'public/counter.txt');
+      fs.writeFile(filepath, content.toString())
     }
   )
 
