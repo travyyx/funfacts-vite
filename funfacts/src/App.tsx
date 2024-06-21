@@ -111,7 +111,7 @@ const translateText = async() => {
     });
 
     xhr.open('POST', 'https://deep-translate1.p.rapidapi.com/language/translate/v2');
-    xhr.setRequestHeader('x-rapidapi-key', import.meta.env.VITE_TRANSLATE_API_KEY);
+    xhr.setRequestHeader('x-rapidapi-key', import.meta.env.TRANSLATE_API_KEY);
     xhr.setRequestHeader('x-rapidapi-host', 'deep-translate1.p.rapidapi.com');
     xhr.setRequestHeader('Content-Type', 'application/json');
     
