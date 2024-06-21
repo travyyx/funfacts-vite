@@ -167,7 +167,7 @@ function increaseCounter() {
     }
   });
 
-  xhr.open('GET', 'http://localhost:3000/increase');
+  xhr.open('GET', 'https://funfacts-vite.vercel.app/increase');
   
   xhr.send();
 }
@@ -181,7 +181,7 @@ useEffect(() => {
     }
   });
 
-  xhr.open('GET', 'http://localhost:3000/counter');
+  xhr.open('GET', 'https://funfacts-vite.vercel.app/counter');
   
   xhr.send();
 }, [count])
