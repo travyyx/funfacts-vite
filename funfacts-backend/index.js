@@ -3,7 +3,7 @@ var cors = require('cors')
 
 async function getCounter() {
   try {
-    const data = await fs.readFile('counter.txt', { encoding: 'utf8' });
+    const data = await fs.readFile('public/counter.txt', { encoding: 'utf8' });
     return data
   } catch (err) {
     return err
