@@ -24,7 +24,7 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
-app.post('/increase', (req, res) => {
+app.get('/increase', (req, res) => {
   const resp = increaseCounter()
 
   res.send(resp)
