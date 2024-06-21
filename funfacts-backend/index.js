@@ -1,4 +1,5 @@
 const fs = require('node:fs/promises');
+var cors = require('cors')
 
 async function getCounter() {
   try {
@@ -13,6 +14,8 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+app.use(cors())
+
 app.get('/counter', (req, res) => {
   getCounter().then(
     (data) => res.send(data)
@@ -21,13 +24,14 @@ app.get('/counter', (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Fun Facts backend running.`)
 })
 
 app.get('/increase', (req, res) => {
-  const resp = increaseCounter()
-
-  res.send(resp)
+  increaseCounter()
+  getCounter().then(
+    (data) => res.send(data)
+  )
 })
 
 app.get('/', (req, res) => {
@@ -37,19 +41,8 @@ app.get('/', (req, res) => {
 function increaseCounter() {
   getCounter().then(
     (data) => {
-      const content = data + 1;
-      fs.writeFile('counter.txt', toString(content), err => {
-        if (err) {
-          console.error(err);
-        } else {
-            getCounter().then(
-              (data) => {
-                return data
-              }
-            )
-        
-        }
-      });
+      content = parseInt(data) + 1;
+      fs.writeFile('counter.txt', content.toString())
     }
   )
 

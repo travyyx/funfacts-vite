@@ -159,14 +159,13 @@ function copyText() {
 
 function increaseCounter() {
   const xhr = new XMLHttpRequest();
-  xhr.withCredentials = true;
   xhr.addEventListener('readystatechange', function () {
     if (this.readyState === this.DONE) {
       console.log(this.responseText)
     }
   });
 
-  xhr.open('GET', 'http://localhost:3000/');
+  xhr.open('GET', 'http://localhost:3000/increase');
   
   xhr.send();
 }
