@@ -66,6 +66,7 @@ function App() {
 
   const fetchFact = async() => {
     try {
+      setOriginalData("")
       setSelected(null)
       setTranslatedData(null)
       setLoading(true)
@@ -104,11 +105,12 @@ const translateText = async() => {
       if (this.readyState === this.DONE) {
         console.log(JSON.parse(this.responseText).data.translations.translatedText)
         setTranslatedData(JSON.parse(this.responseText).data.translations.translatedText)
+        setOriginalData(data.text)
       }
     });
 
     xhr.open('POST', 'https://deep-translate1.p.rapidapi.com/language/translate/v2');
-    xhr.setRequestHeader('x-rapidapi-key', 'a738856ae8mshddcc391ebb33004p10ebb1jsn5cdd46579cdc');
+    xhr.setRequestHeader('x-rapidapi-key', import.meta.env.TRANSLATE_API_KEY);
     xhr.setRequestHeader('x-rapidapi-host', 'deep-translate1.p.rapidapi.com');
     xhr.setRequestHeader('Content-Type', 'application/json');
     
@@ -124,6 +126,36 @@ const translateText = async() => {
 } finally {
   setLoading(false)
 }
+}
+
+function backToOriginal() {
+  setTranslatedData(null)
+  setData({text: originalData})
+  setOriginalData("")
+}
+
+function copyText() {
+  try {
+    if (translatedData) {
+      navigator.clipboard.writeText(translatedData)
+      toast({
+        title: 'Copied',
+        description: 'Fact Copied.',
+        })
+    } else {
+      navigator.clipboard.writeText(data.text)
+      toast({
+        title: 'Copied',
+        description: 'Fact Copied.',
+        })
+    }
+  } catch {
+    toast({
+      title: 'Error',
+      description: 'Failed to copy text',
+      variant: 'destructive',
+      })
+  }
 }
 
 
@@ -168,7 +200,7 @@ const translateText = async() => {
     <TooltipProvider>
   <Tooltip>
     <TooltipTrigger asChild>
-    <Copy className="hover:text-green-500 transition-colors duration-200 cursor-pointer"/>
+    <Copy className="hover:text-green-500 transition-colors duration-200 cursor-pointer" onClick={copyText}/>
     </TooltipTrigger>
     <TooltipContent>
       <P className="text-primary">Copy</P>
@@ -209,6 +241,7 @@ const translateText = async() => {
     </SelectContent>
   </Select>
   <Button onClick={translateText} disabled={!selected}>Translate</Button>
+  { translatedData && (<Button onClick={backToOriginal}>Original</Button>)}
   </div>
 </div>
 )}
