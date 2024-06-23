@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import CountUp from 'react-countup';
 import { Large, H1, H4, P, Lead } from '@/components/ui/Typography'
 import Github from '@/assets/github.svg'
 import Reddit from '@/assets/reddit.svg'
@@ -75,7 +76,6 @@ function App() {
       setTranslatedData(null)
       setLoading(true)
       setTranslatable(false)
-      setData({text: ""})
       const response = await fetch('https://uselessfacts.jsph.pl/random.json?language=en')
       const data = await response.json() as ResponseData
       setData(data)
@@ -198,7 +198,7 @@ function formatNumber(count: number) {
       <H1 className="text-primary">Fun Facts Generator.</H1>
       <Toaster />
       { data.text === "" ? (
-        <Card>
+        <Card className="animate-in slide-in-from-left-20 duration-700 ease-in-out">
   <CardHeader>
     <CardTitle>Generate Fun Facts in one Click.</CardTitle>
   </CardHeader>
@@ -206,7 +206,12 @@ function formatNumber(count: number) {
     <Button className="text-lg" onClick={fetchFact}>Generate.</Button>
   </CardContent>
   <CardFooter className="w-full text-center">
-    <Lead className="w-full text-center">{formatNumber(count)} Facts generated and counting.</Lead>
+  <CountUp
+        end={count}
+        duration={2.75}
+        formattingFn={(value) => `${formatNumber(value)} Facts generated and counting.`}
+        className="w-full text-center text-xl text-muted-foreground"
+      />
   </CardFooter>
 </Card>
 ) : (
@@ -226,14 +231,14 @@ function formatNumber(count: number) {
     <TooltipProvider>
   <Tooltip>
     <TooltipTrigger asChild>
-    <Languages className="hover:text-blue-500 transition-colors duration-200 cursor-pointer" onClick={() => setTranslatable(true)}/>
+    <Languages className="hover:text-blue-500 transition-colors duration-200 cursor-pointer" onClick={() => setTranslatable(!translatable)}/>
     </TooltipTrigger>
     <TooltipContent>
       <P className="text-primary">Translate</P>
     </TooltipContent>
   </Tooltip>
 </TooltipProvider>
-    <Button className="text-lg" onClick={() => setData({text: ""})}>Re-Generate.</Button>
+    <Button className="text-lg" onClick={fetchFact}>Re-Generate.</Button>
     <TooltipProvider>
   <Tooltip>
     <TooltipTrigger asChild>
@@ -262,7 +267,7 @@ function formatNumber(count: number) {
 </Card>
 )}
 {translatable && data && (
-<div className="w-96">
+<div className="w-96 animate-in slide-in-from-top-10 duration-300 ease-in-out">
 <Lead className="text-primary mb-2">Language</Lead>
   <div className="flex w-full gap-2 items-center">
   <Select onValueChange={(value) => setSelected(value)}>
