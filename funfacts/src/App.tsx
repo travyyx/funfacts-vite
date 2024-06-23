@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import ky from 'ky';
 import {
   Card,
   CardContent,
@@ -51,18 +52,16 @@ interface Language {
   name: string
 }
 
-const de = { language: "de", name: "German" }
-const es = { language: "es", name: "Spanish" }
-const fr = { language: "fr", name: "French" }
-
-const langs: Language[] = [de, es, fr]
+interface Response {
+  languages: Array<Language>
+}
 
 
 function App() {
   const { toast } = useToast()
   const [data, setData] = useState<Data>({text: ""})
   const [loading, setLoading] = useState(false)
-  const [languages] = useState<Array<Language>>(langs)
+  const [languages, setLanguages] = useState<Array<Language> | null>(null)
   const [translatable, setTranslatable] = useState(false)
   const [selected, setSelected] = useState<string | null>()
   const [translatedData, setTranslatedData] = useState<string | null>(null)
@@ -98,27 +97,22 @@ const translateText = async() => {
 
   try {
     setLoading(true)
-    const body = JSON.stringify({
-      q: data.text,
-      source: 'en',
-      target: selected,
-    });
     
-    const xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
-    xhr.addEventListener('readystatechange', function () {
-      if (this.readyState === this.DONE) {
-        setTranslatedData(JSON.parse(this.responseText).data.translations.translatedText)
-        setOriginalData(data.text)
-      }
-    });
+    const json = await ky.post('https://deep-translate1.p.rapidapi.com/language/translate/v2', {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-rapidapi-key': import.meta.env.VITE_TRANSLATE_API_KEY,
+        'x-rapidapi-host': 'deep-translate1.p.rapidapi.com',
+      },
+      json:{
+        q: data.text,
+        source: 'en',
+        target: selected,
+      },
+  }).json();
 
-    xhr.open('POST', 'https://deep-translate1.p.rapidapi.com/language/translate/v2');
-    xhr.setRequestHeader('x-rapidapi-key', import.meta.env.VITE_TRANSLATE_API_KEY);
-    xhr.setRequestHeader('x-rapidapi-host', 'deep-translate1.p.rapidapi.com');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    
-    xhr.send(body);
+  setTranslatedData(json.data.translations.translatedText)
+  setOriginalData(data.text)
 
 } catch (error) {
   console.log(error)
@@ -133,12 +127,29 @@ const translateText = async() => {
 }
 }
 
+const fetchLanguages = async() => {
+  const json: Response = await ky.get('https://deep-translate1.p.rapidapi.com/language/translate/v2/languages', {
+    headers: {
+      'x-rapidapi-key': import.meta.env.VITE_TRANSLATE_API_KEY,
+      'x-rapidapi-host': 'deep-translate1.p.rapidapi.com',
+    },
+}).json()
+
+  const langs: Language[] = []
+  json.languages.slice(1).forEach((lang: Language) => {
+    langs.push(lang)
+  })
+  await setLanguages(langs)
+  }
+
+
 function backToOriginal() {
   setTranslatedData(null)
   setData({text: originalData})
   setOriginalData("")
 }
 useEffect(() => {
+  fetchLanguages()
   const db = getDatabase(app);
 const starCountRef = ref(db, 'facts');
 onValue(starCountRef, (snapshot) => {
@@ -277,7 +288,7 @@ function formatNumber(count: number) {
     <SelectContent className="dark">
     { languages && languages.map((language) => {
         return (
-          <SelectItem key={language.name} value={language.language} className="dark text-primary">{language.name}</SelectItem>
+          <SelectItem key={language.language} value={language.language} className="dark text-primary">{language.name}</SelectItem>
         )
     })}
     </SelectContent>
