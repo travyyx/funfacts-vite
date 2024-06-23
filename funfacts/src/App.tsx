@@ -55,6 +55,17 @@ interface Language {
 interface Response {
   languages: Array<Language>
 }
+interface Translated {
+  translations: TranslateData
+}
+
+interface TranslateResponse {
+  data: Translated 
+}
+
+interface TranslateData {
+  translatedText: string
+}
 
 
 function App() {
@@ -98,7 +109,7 @@ const translateText = async() => {
   try {
     setLoading(true)
     
-    const json = await ky.post('https://deep-translate1.p.rapidapi.com/language/translate/v2', {
+    const json: TranslateResponse = await ky.post('https://deep-translate1.p.rapidapi.com/language/translate/v2', {
       headers: {
         'Content-Type': 'application/json',
         'x-rapidapi-key': import.meta.env.VITE_TRANSLATE_API_KEY,
@@ -206,7 +217,7 @@ function formatNumber(count: number) {
 
   return (
     <main className="bg-background dark w-screen h-screen flex flex-col items-center justify-center gap-3">
-      <H1 className="text-primary">Fun Facts Generator.</H1>
+      <H1 className="text-primary hover:scale-110 hover:text-blue-500 duration-200 transition-all cursor-pointer" onClick={() => setData({text: ""})}>Fun Facts Generator.</H1>
       <Toaster />
       { data.text === "" ? (
         <Card className="animate-in slide-in-from-left-20 duration-700 ease-in-out">
